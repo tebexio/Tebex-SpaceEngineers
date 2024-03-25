@@ -1,0 +1,15 @@
+C:\Users\TebexDev\Documents\GitHub\Tebex-SpaceEngineers\DedicatedServerPluginTest\obj\x64\Debug\DedicatedServerPluginTest.csproj.AssemblyReference.cache
+C:\Users\TebexDev\Documents\GitHub\Tebex-SpaceEngineers\DedicatedServerPluginTest\obj\x64\Debug\DedicatedServerPluginTest.csproj.CoreCompileInputs.cache
+C:\Users\TebexDev\Documents\GitHub\Tebex-SpaceEngineers\DedicatedServerPluginTest\bin\x64\Debug\DedicatedServerPluginTest.dll
+C:\Users\TebexDev\Documents\GitHub\Tebex-SpaceEngineers\DedicatedServerPluginTest\bin\x64\Debug\DedicatedServerPluginTest.pdb
+C:\Users\TebexDev\Documents\GitHub\Tebex-SpaceEngineers\DedicatedServerPluginTest\bin\x64\Debug\0Harmony.dll
+C:\Users\TebexDev\Documents\GitHub\Tebex-SpaceEngineers\DedicatedServerPluginTest\bin\x64\Debug\Sandbox.Common.dll
+C:\Users\TebexDev\Documents\GitHub\Tebex-SpaceEngineers\DedicatedServerPluginTest\bin\x64\Debug\Sandbox.Game.dll
+C:\Users\TebexDev\Documents\GitHub\Tebex-SpaceEngineers\DedicatedServerPluginTest\bin\x64\Debug\VRage.dll
+C:\Users\TebexDev\Documents\GitHub\Tebex-SpaceEngineers\DedicatedServerPluginTest\bin\x64\Debug\VRage.Game.dll
+C:\Users\TebexDev\Documents\GitHub\Tebex-SpaceEngineers\DedicatedServerPluginTest\bin\x64\Debug\VRage.Library.dll
+C:\Users\TebexDev\Documents\GitHub\Tebex-SpaceEngineers\DedicatedServerPluginTest\obj\x64\Debug\DedicatedServerPluginTest.csproj.CopyComplete
+C:\Users\TebexDev\Documents\GitHub\Tebex-SpaceEngineers\DedicatedServerPluginTest\obj\x64\Debug\DedicatedServerPluginTest.dll
+C:\Users\TebexDev\Documents\GitHub\Tebex-SpaceEngineers\DedicatedServerPluginTest\obj\x64\Debug\DedicatedServerPluginTest.pdb
+C:\Users\TebexDev\Documents\GitHub\Tebex-SpaceEngineers\DedicatedServerPluginTest\bin\x64\Debug\VRage.Dedicated.dll
+C:\Users\TebexDev\Documents\GitHub\Tebex-SpaceEngineers\DedicatedServerPluginTest\bin\x64\Debug\Newtonsoft.Json.dll
