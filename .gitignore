@@ -1,5 +1,6 @@
 ﻿.vs/
 .idea/
+.idea/*
 .DS_Store
 Tebex-SpaceEngineers/bin
 Tebex-SpaceEngineers/obj
