@@ -21,6 +21,9 @@ namespace TebexSpaceEngineersPlugin
         [Category("General")]
         public string SecretKey = "Your Tebex Secret Key";
 
+        [Display(Name = "Auto Report Errors", Description = "Any errors will be automatically reported to Tebex")]
+        [Category("General")]
+        public bool AutoReportingEnabled = true;
         public void Save(string userDataPath)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(PluginConfiguration));

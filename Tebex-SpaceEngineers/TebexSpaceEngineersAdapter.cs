@@ -4,8 +4,14 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Sandbox.Game.Multiplayer;
+using Sandbox.Game.World;
+using Sandbox.ModAPI;
 using Tebex.API;
+using Tebex.Shared.Components;
 using Tebex.Triage;
+using TebexSpaceEngineersPlugin;
+using VRage.Game.ModAPI;
 
 namespace Tebex.Adapters
 {
@@ -42,49 +48,47 @@ namespace Tebex.Adapters
                 task.RunSynchronously();
             });
 
+            //TODO
+            /**
             Provider.onServerConnected += id =>
             {
                 var player = GetPlayerRef(id.ToString());
-                if (player is SteamPlayer)
+                if (player is MyPlayer)
                 {
-                    Plugin.OnUserConnected((player as SteamPlayer).ToUnturnedPlayer());
+                    Plugin.OnUserConnected((player as MyPlayer));
                 }
-            };
+            };*/
         }
 
         public override void LogWarning(string message)
         {
-            Logger.LogWarning(message);
+            VRage.Utils.MyLog.Default.WriteLineAndConsole("[WARNING] " + message);
         }
 
         public override void LogError(string message)
         {
-            Logger.LogError(message);
+            VRage.Utils.MyLog.Default.WriteLineAndConsole("[ERROR] " + message); 
         }
 
         public override void LogInfo(string message)
         {
-            Logger.Log(message);
+            VRage.Utils.MyLog.Default.WriteLineAndConsole("[INFO] " + message);
         }
 
         public override void LogDebug(string message)
         {
             if (PluginConfig.DebugMode)
             {
-                Logger.Log("[DEBUG] " + message);   
+                VRage.Utils.MyLog.Default.WriteLineAndConsole("[DEBUG] " + message);
             }
         }
 
         public override void ReplyPlayer(object player, string message)
         {
-            if (player is UnturnedPlayer)
+            if (player is MyPlayer)
             {
-                UnturnedPlayer unturnedPlayer = (UnturnedPlayer)player;
-                UnturnedChat.Say(unturnedPlayer, message);
-            } else if (player is ConsolePlayer)
-            {
-                ConsolePlayer consolePlayer = (ConsolePlayer)player;
-                UnturnedChat.Say(consolePlayer, message);
+                MyPlayer spaceEngPlayer = (MyPlayer)player;
+                //TODO send message
             }
             else
             {
@@ -96,16 +100,17 @@ namespace Tebex.Adapters
         {
             //playerObj is always null for offline commands
             var fullCommand = $"{commandName} {string.Join(" ", args)}";
-            UnturnedPlayer player = (playerObj as SteamPlayer).ToUnturnedPlayer();
-            ConsolePlayer executer = new ConsolePlayer();
-            TaskDispatcher.RunAsync(() =>
+            MyPlayer player = playerObj as MyPlayer;
+            
+            if (command.Conditions.Delay < 0)
             {
-                if (command.Conditions.Delay > 0)
-                {
-                    Thread.Sleep(command.Conditions.Delay * 1000);
-                }
-                
-                bool success = R.Commands.Execute(executer, fullCommand);
+                command.Conditions.Delay = 0;
+            }
+            
+            Plugin.PluginTimers().Once(command.Conditions.Delay, () =>
+            {
+                //bool success = R.Commands.Execute(executer, fullCommand); //TODO
+                var success = false; // TODO
                 if (success)
                 {
                     ExecutedCommands.Add(command);
@@ -120,16 +125,22 @@ namespace Tebex.Adapters
         private bool ExecuteServerCommand(TebexApi.Command command, object playerObj, string commandName, string[] args)
         {
             var fullCommand = $"{commandName} {string.Join(" ", args)}";
-            UnturnedPlayer player = (playerObj as SteamPlayer).ToUnturnedPlayer();
-            ConsolePlayer executer = new ConsolePlayer();
-            bool success = R.Commands.Execute(executer, fullCommand);
+            MyPlayer player = playerObj as MyPlayer;
+            
+            if (command.Conditions.Delay < 0)
+            {
+                command.Conditions.Delay = 0;
+            }
+            
+            //bool success = R.Commands.Execute(executer, fullCommand); //TODO
+            var success = false; // TODO
             if (success)
             {
                 ExecutedCommands.Add(command);
             }
             else
             {
-                LogWarning($"online command did not succeed for player '{player.SteamPlayer().player.name}': {fullCommand}");
+                LogWarning($"offline command did not succeed for player '{command.Player.Username}': {fullCommand}");
             }
 
             return success;
@@ -143,16 +154,10 @@ namespace Tebex.Adapters
         public override bool IsPlayerOnline(string playerRefId)
         {
             object player = GetPlayerRef(playerRefId);
-            if (player is UnturnedPlayer)
+            if (player is MyPlayer)
             {
                 return true;
             }
-
-            if (player is SteamPlayer)
-            {
-                return true;
-            }
-
             if (player == null)
             {
                 return false;
@@ -162,33 +167,42 @@ namespace Tebex.Adapters
             return false;
         }
 
+        public static MyPlayer TryGetPlayerBySteamId(ulong steamId, int serialId = 0)
+        {
+            var collection = MySession.Static.Players;
+        
+            long identity = collection.TryGetIdentityId(steamId, serialId);
+            if (identity == 0)
+                return null;
+            if (!collection.TryGetPlayerId(identity, out MyPlayer.PlayerId playerId))
+                return null;
+            return collection.TryGetPlayerById(playerId, out MyPlayer player) ? player : null;
+        }
+        
+        // playerId must be a Steam ID 
         public override object GetPlayerRef(string playerId)
         {
-            // Always returns the steam player if found. playerId provided must be a Steam ID.
-            foreach (SteamPlayer player in Provider.clients)
+            ulong steamId = 0;
+            bool success = ulong.TryParse(playerId, out steamId);
+            if (!success)
             {
-                LogDebug($"provider client: {player.playerID.steamID}/{player.playerID.playerName}");
-                if (player.playerID.steamID.m_SteamID.ToString().Equals(playerId))
-                {
-                    return player;
-                }
+                return null;
             }
-
-            return null;
+            MyPlayer player = TryGetPlayerBySteamId(steamId);
+            return player;
         }
 
         public override string ExpandUsernameVariables(string input, object playerObj)
         {
-            SteamPlayer steamPlayer = (SteamPlayer)playerObj;
-            UnturnedPlayer unturnedPlayer = UnturnedPlayer.FromSteamPlayer(steamPlayer);
+            MyPlayer spaceEngPlayer = (MyPlayer)playerObj;
 
-            input = input.Replace("{id}", steamPlayer.playerID.steamID.ToString());
-            input = input.Replace("{name}", unturnedPlayer.SteamName);
-            input = input.Replace("{username}", steamPlayer.playerID.playerName);
-            input = input.Replace("{steamname}", unturnedPlayer.SteamName);
-            input = input.Replace("{charactername}", unturnedPlayer.CharacterName);
-            input = input.Replace("{displayname}", unturnedPlayer.DisplayName);
-            input = input.Replace("{uuid}", steamPlayer.playerID.steamID.ToString());
+            
+            input = input.Replace("{id}", spaceEngPlayer.Id.SteamId.ToString());
+            input = input.Replace("{name}", spaceEngPlayer.DisplayName);
+            input = input.Replace("{username}", spaceEngPlayer.DisplayName);
+            input = input.Replace("{steamname}", spaceEngPlayer.PlatformDisplayName);
+            input = input.Replace("{username}", spaceEngPlayer.DisplayName);
+            input = input.Replace("{displayname}", spaceEngPlayer.DisplayName);
 
             return input;
         }
@@ -313,9 +327,9 @@ namespace Tebex.Adapters
         public override TebexTriage.AutoTriageEvent FillAutoTriageParameters(TebexTriage.AutoTriageEvent partialEvent)
         {
             partialEvent.GameId = Plugin.GetGame();
-            partialEvent.FrameworkId = "RocketMod/LGM";
-            partialEvent.PluginVersion = Plugins.TebexUnturned.GetPluginVersion();
-            partialEvent.ServerIp = new IPAddress(Provider.ip).ToString();
+            partialEvent.FrameworkId = "Vanilla";
+            partialEvent.PluginVersion = TebexPlugin.GetPluginVersion();
+            partialEvent.ServerIp = new IPAddress(0).ToString(); // TODO
             return partialEvent;
         }
 

@@ -88,9 +88,9 @@ namespace TebexSpaceEngineersPlugin {
         protected void Load()
         {
             // Sync configuration to BaseTebexAdapter model
-            BaseTebexAdapter.PluginConfig.SecretKey = Configuration.Instance.SecretKey;
-            BaseTebexAdapter.PluginConfig.AutoReportingEnabled = Configuration.Instance.AutoReportingEnabled;
-            BaseTebexAdapter.PluginConfig.DebugMode = Configuration.Instance.DebugMode;
+            BaseTebexAdapter.PluginConfig.SecretKey = m_configuration.SecretKey;
+            BaseTebexAdapter.PluginConfig.AutoReportingEnabled = m_configuration.AutoReportingEnabled;
+            BaseTebexAdapter.PluginConfig.DebugMode = m_configuration.DebugMode;
             Init();
         }
 
@@ -141,36 +141,12 @@ namespace TebexSpaceEngineersPlugin {
             return "Space Engineers";
         }
 
-        public void Warn(string message)
-        {
-            Logger.LogWarning(message);
-        }
-
-        public void Error(string message)
-        {
-            Logger.LogError(message);
-        }
-
-        public void Info(string info)
-        {
-            Logger.Log(info);
-        }
-
         public void OnUserConnected(MyPlayer player)
         {
-            // Check for default config and inform the admin that configuration is waiting.
-            if (MySession.Static.IsUserAdmin(player.Id.SteamId) && BaseTebexAdapter.PluginConfig.SecretKey == "your-secret-key-here"))
-            {
-                _adapter.ReplyPlayer(player, "Tebex is not configured. Use tebex:secret <secret> from the F1 menu to add your key."); 
-                _adapter.ReplyPlayer(player, "Get your secret key by logging in at:");
-                _adapter.ReplyPlayer(player, "https://tebex.io/");
-            }
-
-            //FIXME find player IP
             MyNetworkClient playerNetworkClient;
             Sync.Clients.TryGetClient(player.Id.SteamId, out playerNetworkClient);
-            
             _adapter.LogDebug($"Player login event: {player.Id}");
+            //TODO find player IP
             _adapter.OnUserConnected(player.Id.SteamId.ToString(), "0.0.0.0");
         }
         
@@ -192,7 +168,7 @@ namespace TebexSpaceEngineersPlugin {
 
         public void SaveConfiguration()
         {
-            Configuration.Save();
+            m_configuration.Save(""); //TODO
         }
         
         #endregion

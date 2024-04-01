@@ -8,6 +8,7 @@ using Sandbox.Engine;
 using Sandbox.Engine.Multiplayer;
 using HarmonyLib;
 using Sandbox.Game.Gui;
+using Tebex.API.Shared;
 using VRage.Utils;
 using static TebexSpaceEngineersPlugin.PatchController;
 
@@ -35,8 +36,12 @@ namespace TebexSpaceEngineersPlugin.Patches {
 
             //Ensure chat starts with command prefix - you could define this in the config or make it whatever you want
             //Be weary of mod conficts since keen have no standard system for registering/handling commands.
-            if (!messageText.StartsWith("/"))
-                return true;
+            if (!messageText.StartsWith("/tebex"))
+            {
+                var success = TebexCommands.Handle(messageText, steamUserID.ToString(), TebexPlugin.GetAdapter());
+                var shouldContinue = !success;
+                return shouldContinue;
+            }
 
             //Do command processing.
             VRage.Utils.MyLog.Default.WriteLineAndConsole("Command recieved and processing");
