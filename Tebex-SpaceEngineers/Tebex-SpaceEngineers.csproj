@@ -73,6 +73,7 @@
     <Compile Include="Shared\TebexApi.cs" />
     <Compile Include="Shared\TebexCommands.cs" />
     <Compile Include="Shared\TebexTriage.cs" />
+    <Compile Include="SpaceEngineersCommands.cs" />
     <Compile Include="TebexPlugin.cs" />
     <Compile Include="PatchController.cs" />
     <Compile Include="Patches\ChatPatch.cs" />

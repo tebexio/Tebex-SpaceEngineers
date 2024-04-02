@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -10,6 +11,7 @@ using Sandbox.Game.World;
 using Tebex.Adapters;
 using Tebex.API;
 using Tebex.Shared.Components;
+using VRage.GameServices;
 using VRage.Plugins;
 using VRage.Utils;
 using static TebexSpaceEngineersPlugin.PatchController;
@@ -143,11 +145,9 @@ namespace TebexSpaceEngineersPlugin {
 
         public void OnUserConnected(MyPlayer player)
         {
-            MyNetworkClient playerNetworkClient;
-            Sync.Clients.TryGetClient(player.Id.SteamId, out playerNetworkClient);
-            _adapter.LogDebug($"Player login event: {player.Id}");
-            //TODO find player IP
-            _adapter.OnUserConnected(player.Id.SteamId.ToString(), "0.0.0.0");
+            string playerIp = GetPlayerIp(player.Id.SteamId);
+            _adapter.LogDebug($"Player login event: {player.Id} from " + playerIp);
+            _adapter.OnUserConnected(player.Id.SteamId.ToString(), playerIp);
         }
         
         private void OnServerShutdown()
@@ -170,7 +170,14 @@ namespace TebexSpaceEngineersPlugin {
         {
             m_configuration.Save(""); //TODO
         }
-        
+
+        private string GetPlayerIp(ulong steamId)
+        {
+            var state = new MyP2PSessionState();
+            Sandbox.Engine.Networking.MyGameService.Peer2Peer.GetSessionState(steamId, ref state);
+            var ip = new IPAddress(BitConverter.GetBytes(state.RemoteIP).Reverse().ToArray());
+            return ip.ToString();
+        }
         #endregion
     }
 }

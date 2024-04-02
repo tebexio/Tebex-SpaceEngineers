@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Sandbox.ModAPI;
@@ -11,12 +12,15 @@ using Tebex.API;
 using Tebex.Shared.Components;
 using Tebex.Triage;
 using TebexSpaceEngineersPlugin;
+using VRage.Collections;
 using VRage.Game.ModAPI;
 
 namespace Tebex.Adapters
 {
     public class TebexSpaceEngineersAdapter : BaseTebexAdapter
     {
+        private List<MyPlayer> lastPlayerList = new List<MyPlayer>();
+        
         public static TebexSpaceEngineersPlugin.TebexPlugin Plugin { get; private set; }
         public TebexSpaceEngineersAdapter(TebexSpaceEngineersPlugin.TebexPlugin plugin)
         {
@@ -48,16 +52,25 @@ namespace Tebex.Adapters
                 task.RunSynchronously();
             });
 
-            //TODO
-            /**
-            Provider.onServerConnected += id =>
+            Plugin.PluginTimers().Every(60.0f, () =>
             {
-                var player = GetPlayerRef(id.ToString());
-                if (player is MyPlayer)
+                var currentPlayers = MySession.Static.Players;
+                var newPlayerList = new List<MyPlayer>();
+                
+                foreach (var player in currentPlayers.GetOnlinePlayers())
                 {
-                    Plugin.OnUserConnected((player as MyPlayer));
+                    if (!lastPlayerList.Contains(player))
+                    {
+                        var playerObj = GetPlayerRef(player.Id.SteamId.ToString());
+                        if (playerObj is MyPlayer)
+                        {
+                            newPlayerList.Add(playerObj as MyPlayer);
+                            Plugin.OnUserConnected(playerObj as MyPlayer);
+                        }
+                    }
                 }
-            };*/
+                lastPlayerList = newPlayerList;
+            });
         }
 
         public override void LogWarning(string message)
@@ -88,7 +101,8 @@ namespace Tebex.Adapters
             if (player is MyPlayer)
             {
                 MyPlayer spaceEngPlayer = (MyPlayer)player;
-                //TODO send message
+                //TODO send chat message
+                LogInfo($"message for player '{spaceEngPlayer.DisplayName}': '{message}'");
             }
             else
             {
@@ -98,6 +112,8 @@ namespace Tebex.Adapters
 
         public override void ExecuteOfflineCommand(TebexApi.Command command, object playerObj, string commandName, string[] args)
         {
+            //TODO offline commands not currently supported in Space Engineers
+            
             //playerObj is always null for offline commands
             var fullCommand = $"{commandName} {string.Join(" ", args)}";
             MyPlayer player = playerObj as MyPlayer;
@@ -109,8 +125,7 @@ namespace Tebex.Adapters
             
             Plugin.PluginTimers().Once(command.Conditions.Delay, () =>
             {
-                //bool success = R.Commands.Execute(executer, fullCommand); //TODO
-                var success = false; // TODO
+                var success = false;
                 if (success)
                 {
                     ExecutedCommands.Add(command);
@@ -131,19 +146,17 @@ namespace Tebex.Adapters
             {
                 command.Conditions.Delay = 0;
             }
-            
-            //bool success = R.Commands.Execute(executer, fullCommand); //TODO
-            var success = false; // TODO
-            if (success)
-            {
-                ExecutedCommands.Add(command);
-            }
-            else
-            {
-                LogWarning($"offline command did not succeed for player '{command.Player.Username}': {fullCommand}");
-            }
 
-            return success;
+            switch (commandName)
+            {
+                case "give-item":
+                    return SpaceEngineersCommands.GiveItem(player, uint.Parse(args[0]));
+                case "give-space-cash":
+                    return SpaceEngineersCommands.GiveSpaceCredits(player, uint.Parse(args[0]));
+                default:
+                    LogWarning($"unknown server command: {fullCommand}");
+                    return false;
+            }
         }
         
         public override bool ExecuteOnlineCommand(TebexApi.Command command, object playerObj, string commandName, string[] args)
@@ -329,7 +342,10 @@ namespace Tebex.Adapters
             partialEvent.GameId = Plugin.GetGame();
             partialEvent.FrameworkId = "Vanilla";
             partialEvent.PluginVersion = TebexPlugin.GetPluginVersion();
-            partialEvent.ServerIp = new IPAddress(0).ToString(); // TODO
+            
+            var serverIP = new IPAddress(Sandbox.Engine.Networking.MyGameService.GameServer.GetPublicIP());
+            partialEvent.ServerIp = serverIP.ToString();
+            
             return partialEvent;
         }
 
