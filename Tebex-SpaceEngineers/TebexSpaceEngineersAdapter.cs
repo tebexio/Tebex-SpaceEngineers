@@ -49,7 +49,7 @@ namespace Tebex.Adapters
             Plugin.PluginTimers().Every(0.5f, () =>
             {
                 Task task = Plugin.WebRequests().ProcessNextRequestAsync();
-                task.RunSynchronously();
+                //task.RunSynchronously();
             });
 
             Plugin.PluginTimers().Every(60.0f, () =>

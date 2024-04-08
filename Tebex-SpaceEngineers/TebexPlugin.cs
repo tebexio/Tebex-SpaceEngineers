@@ -88,7 +88,7 @@ namespace TebexSpaceEngineersPlugin {
         
         public static string GetPluginVersion()
         {
-            return "2.0.0";
+            return "2.0.0-DEV";
         }
 
         protected void Load()

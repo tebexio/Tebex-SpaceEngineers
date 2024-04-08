@@ -22,7 +22,7 @@ namespace Tebex.Shared.Components
             public TimeSpan Interval;
             public Action Action;
             public bool Repeat;
-
+            
             public ScheduledAction(DateTime nextExecutionTime, TimeSpan interval, Action action, bool repeat)
             {
                 NextExecutionTime = nextExecutionTime;
@@ -51,16 +51,19 @@ namespace Tebex.Shared.Components
                 }
                 catch (Exception ex)
                 {
+                    _adapter.LogError("Error executing scheduled action");
                     _adapter.LogError(ex.Message);
+                    _adapter.LogError(ex.StackTrace);
+                }
+                finally
+                {
+                    _scheduledActions.Remove(action);
                 }
 
                 if (action.Repeat)
                 {
                     action.NextExecutionTime += action.Interval;
-                }
-                else
-                {
-                    _scheduledActions.Remove(action);
+                    _scheduledActions.Add(action);
                 }
             }
         }
