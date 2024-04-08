@@ -31,7 +31,7 @@ namespace TebexSpaceEngineersPlugin {
             //GetConfiguration NEEDS to be called at this point in the process or else Developers will experience the
             //behaviour that is exhibited on the description of the GetConfiguration definition below...
             GetConfiguration(VRage.FileSystem.MyFileSystem.UserDataPath);
-
+            Load();
             //START PATCHING ALL methods marked for patch by controller - only needs to be called once.
             //PatchMethods(this); FIXME
         }
@@ -116,16 +116,17 @@ namespace TebexSpaceEngineersPlugin {
             }
 
             // Check if secret key has been set. If so, get store information and place in cache
-            if (BaseTebexAdapter.PluginConfig.SecretKey != "your-secret-key-here")
+            if (BaseTebexAdapter.PluginConfig.SecretKey != "Your Tebex Secret Key")
             {
+                _adapter.LogInfo("Secret key is set. Loading store info...");
                 // No-op, just to place info in the cache for any future triage events
                 _adapter.FetchStoreInfo((info => { }));
                 return;
             }
 
-            _adapter.LogInfo("Tebex detected a new configuration file.");
-            _adapter.LogInfo("Use tebex:secret <secret> to add your store's secret key.");
-            _adapter.LogInfo("Alternatively, add the secret key to 'Tebex.json' and reload the plugin.");
+            _adapter.LogInfo("Tebex did not find your secret key.");
+            _adapter.LogInfo("Please set your game server key in the Dedicated Server Manager in the 'Plugins' tab. Select 'Tebex' from the list of plugins.");
+            _adapter.LogInfo("Get your game server key from https://creator.tebex.io/game-servers");
         }
 
         public WebRequests WebRequests()
