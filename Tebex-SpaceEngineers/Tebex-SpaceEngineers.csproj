@@ -68,7 +68,8 @@
   <ItemGroup>
     <Compile Include="Shared\BaseTebexAdapter.cs" />
     <Compile Include="Shared\Components\IServer.cs" />
-    <Compile Include="Shared\Components\PluginTimers.cs" />
+    <Compile Include="Shared\Components\ThreadTimers.cs" />
+    <Compile Include="Shared\Components\TickTimers.cs" />
     <Compile Include="Shared\Components\WebRequests.cs" />
     <Compile Include="Shared\TebexApi.cs" />
     <Compile Include="Shared\TebexCommands.cs" />

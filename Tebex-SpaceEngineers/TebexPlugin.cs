@@ -37,8 +37,12 @@ namespace TebexSpaceEngineersPlugin {
         }
 
         //Called every gameupdate or 'Tick'
-        public void Update() {
-            //MyLog.Default.WriteLineAndConsole("tebex tick");
+        public void Update()
+        {
+            if (TebexSpaceEngineersAdapter.Plugin != null)
+            {
+                TebexSpaceEngineersAdapter.Plugin.Tick();
+            }
         }
 
 
@@ -79,7 +83,7 @@ namespace TebexSpaceEngineersPlugin {
 
         private static TebexSpaceEngineersAdapter _adapter;
          
-        private static PluginTimers _timers;
+        private static TickTimers _timers;
         private static WebRequests _webrequest;
         
         public static string GetPluginVersion()
@@ -104,7 +108,7 @@ namespace TebexSpaceEngineersPlugin {
             
             // Init plugin components so they have access to our adapter
             _webrequest = new WebRequests(_adapter);
-            _timers = new PluginTimers(_adapter);
+            _timers = new TickTimers(_adapter);
             
             TebexApi.Instance.InitAdapter(_adapter);
  
@@ -129,12 +133,17 @@ namespace TebexSpaceEngineersPlugin {
             _adapter.LogInfo("Get your game server key from https://creator.tebex.io/game-servers");
         }
 
+        public void Tick()
+        {
+            _timers.Update();
+        }
+        
         public WebRequests WebRequests()
         {
             return _webrequest;
         }
 
-        public PluginTimers PluginTimers()
+        public TickTimers PluginTimers()
         {
             return _timers;
         }
