@@ -4,10 +4,13 @@ using Tebex.Adapters;
 
 namespace Tebex.Shared.Components
 {
-    public class PluginTimers
+    /// <summary>
+    /// ThreadTimers is an implementation of executing a scheduled Action using System.Threading timers.
+    /// </summary>
+    public class ThreadTimers
     {
         private static BaseTebexAdapter _adapter;
-        public PluginTimers(BaseTebexAdapter adapter)
+        public ThreadTimers(BaseTebexAdapter adapter)
         {
             _adapter = adapter;
         }
