@@ -150,9 +150,24 @@ namespace Tebex.Adapters
             switch (commandName)
             {
                 case "give-item":
-                    return SpaceEngineersCommands.GiveItem(player, uint.Parse(args[0]));
-                case "give-space-cash":
-                    return SpaceEngineersCommands.GiveSpaceCredits(player, uint.Parse(args[0]));
+                    if (args.Length < 3)
+                    {
+                        LogWarning($"not enough args in `give-item` command. usage: give-item [player] [itemId] [quantity]");
+                        return false;    
+                    }
+                    
+                    var itemId = uint.Parse(args[1]);
+                    var quantity = uint.Parse(args[2]);
+                    return SpaceEngineersCommands.GiveItem(this, player, itemId, quantity);
+                case "give-credits":
+                    if (args.Length < 2)
+                    {
+                        LogWarning($"not enough args in `give-credits` command. usage: give-credits [player] [amount]");
+                        return false;  
+                    }
+
+                    var amount = uint.Parse(args[1]);
+                    return SpaceEngineersCommands.GiveSpaceCredits(player, amount);
                 default:
                     LogWarning($"unknown server command: {fullCommand}");
                     return false;
