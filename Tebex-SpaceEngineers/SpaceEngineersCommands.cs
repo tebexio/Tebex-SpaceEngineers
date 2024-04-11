@@ -15,16 +15,15 @@ namespace TebexSpaceEngineersPlugin
     //  These are still sent as normal commands and must be interpreted, but these are the implementations of those supported commands.
     public static class SpaceEngineersCommands
     {
-        public static bool GiveItem(BaseTebexAdapter adapter, MyPlayer player, uint itemId, uint quantity)
+        public static bool GiveItem(BaseTebexAdapter adapter, MyPlayer player, string itemName, uint quantity)
         {
-            /**
             if (player == null)
             {
                 adapter.LogError($"Failed to get player for give item command");
                 return false;
             }
 
-            var itemOb = MyObjectBuilderSerializer.CreateNewObject(RewardType.RewardTypeMap[type]);
+            var itemOb = MyObjectBuilderSerializer.CreateNewObject(MyObjectBuilderType.Parse(itemName));
             if (itemOb == null)
             {
                 adapter.LogError($"Failed to create object builder");
@@ -34,7 +33,7 @@ namespace TebexSpaceEngineersPlugin
             var item = itemOb as MyObjectBuilder_PhysicalObject;
             if (item == null)
             {
-                adapter.LogError($"Failed to create physical object for {type}");
+                adapter.LogError($"Failed to create physical object for {itemName}");
                 return false;
             }
 
@@ -53,8 +52,7 @@ namespace TebexSpaceEngineersPlugin
             inventory.ResetVolume();
             inventory.Add(invItem, qtyFixedPoint);
             inventory.FixInventoryVolume((float)maxVolume);
-            return true;*/
-            return false;
+            return true;
         }
 
         public static bool GiveSpaceCredits(BaseTebexAdapter adapter, MyPlayer player, uint amount)

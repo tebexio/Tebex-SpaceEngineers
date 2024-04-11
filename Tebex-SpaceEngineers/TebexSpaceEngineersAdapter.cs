@@ -160,8 +160,8 @@ namespace Tebex.Adapters
                         LogWarning($"not enough args in `give-item` command. usage: give-item [player] [itemId] [quantity]");
                         return false;    
                     }
-                    
-                    var itemId = uint.Parse(args[1]);
+
+                    var itemId = args[1];
                     var quantity = uint.Parse(args[2]);
                     return SpaceEngineersCommands.GiveItem(this, player, itemId, quantity);
                 case "give_credits":
