@@ -29,22 +29,26 @@ namespace Tebex.Adapters
         
         public override void Init()
         {
+            float commandQueueProcessTimeSeconds = PluginConfig.DebugMode ? 10.0f : 120.0f;
+            float refreshTimeSeconds = PluginConfig.DebugMode ? 10.0f : 60.0f;
+            bool skipWaitChecks = PluginConfig.DebugMode;
+            
             // Initialize timers, hooks, etc. here
-            Plugin.PluginTimers().Every(121.0f, () =>
+            Plugin.PluginTimers().Every(commandQueueProcessTimeSeconds, () =>
             {
-                ProcessCommandQueue(false);
+                ProcessCommandQueue(skipWaitChecks);
             });
-            Plugin.PluginTimers().Every(61.0f, () =>
+            Plugin.PluginTimers().Every(refreshTimeSeconds, () =>
             {
-                DeleteExecutedCommands(false);
+                DeleteExecutedCommands(skipWaitChecks);
             });
-            Plugin.PluginTimers().Every(61.0f, () =>
+            Plugin.PluginTimers().Every(refreshTimeSeconds, () =>
             {
-                ProcessJoinQueue(false);
+                ProcessJoinQueue(skipWaitChecks);
             });
-            Plugin.PluginTimers().Every((60.0f * 15) + 1.0f, () =>  // Every 15 minutes for store info
+            Plugin.PluginTimers().Every((refreshTimeSeconds * 15) + 1.0f, () =>  // Every 15 minutes for store info
             {
-                RefreshStoreInformation(false);
+                RefreshStoreInformation(skipWaitChecks);
             });
             Plugin.PluginTimers().Every(0.5f, () =>
             {
@@ -52,7 +56,7 @@ namespace Tebex.Adapters
                 task.Wait();
             });
 
-            Plugin.PluginTimers().Every(60.0f, () =>
+            Plugin.PluginTimers().Every(refreshTimeSeconds, () =>
             {
                 var currentPlayers = MySession.Static.Players;
                 var newPlayerList = new List<MyPlayer>();
@@ -149,6 +153,7 @@ namespace Tebex.Adapters
 
             switch (commandName)
             {
+                case "give_item":
                 case "give-item":
                     if (args.Length < 3)
                     {
@@ -159,6 +164,7 @@ namespace Tebex.Adapters
                     var itemId = uint.Parse(args[1]);
                     var quantity = uint.Parse(args[2]);
                     return SpaceEngineersCommands.GiveItem(this, player, itemId, quantity);
+                case "give_credits":
                 case "give-credits":
                     if (args.Length < 2)
                     {
@@ -167,7 +173,7 @@ namespace Tebex.Adapters
                     }
 
                     var amount = uint.Parse(args[1]);
-                    return SpaceEngineersCommands.GiveSpaceCredits(player, amount);
+                    return SpaceEngineersCommands.GiveSpaceCredits(this,player, amount);
                 default:
                     LogWarning($"unknown server command: {fullCommand}");
                     return false;
@@ -258,6 +264,18 @@ namespace Tebex.Adapters
                 {
                     onSuccess?.Invoke(code, response);
                 }
+                else if (code == 400)
+                {
+                    if (!endpoint.Contains(TebexApi.TebexTriageUrl))
+                    {
+                        ReportAutoTriageEvent(TebexTriage.CreateAutoTriageEvent("Internal server error from Plugin API",
+                            new Dictionary<string, string>
+                            {
+                                { "request", body },
+                                { "response", response },
+                            }));
+                    }
+                }
                 else if (code == 403)
                 {
                     LogError("Your server's secret key is either not set or incorrect.");
@@ -276,15 +294,19 @@ namespace Tebex.Adapters
                 }
                 else if (code == 500)
                 {
-                    ReportAutoTriageEvent(TebexTriage.CreateAutoTriageEvent("Internal server error from Plugin API",
-                        new Dictionary<string, string>
-                        {
-                            { "request", body },
-                            { "response", response },
-                        }));
-                    LogDebug(
-                        "Internal Server Error from Tebex API. Please try again later. Error details follow below.");
-                    LogDebug(response);
+                    if (!endpoint.Contains(TebexApi.TebexTriageUrl)) // don't report errors that occur on the plugin logs instance
+                    {
+                        ReportAutoTriageEvent(TebexTriage.CreateAutoTriageEvent("Internal server error from Plugin API",
+                            new Dictionary<string, string>
+                            {
+                                { "request", body },
+                                { "response", response },
+                            }));
+                        LogDebug(
+                            "Internal Server Error from Tebex API. Please try again later. Error details follow below.");
+                        LogDebug(response);    
+                    }
+                    
                     onServerError?.Invoke(code, response);
                 }
                 else if (code == 530) // cloudflare origin error
@@ -295,13 +317,14 @@ namespace Tebex.Adapters
                 }
                 else if (code == 0) // timeout or cancelled
                 {
-                    ReportAutoTriageEvent(TebexTriage.CreateAutoTriageEvent("Request timeout to Plugin API",
+                    ReportAutoTriageEvent(TebexTriage.CreateAutoTriageEvent("Request did not complete",
                         new Dictionary<string, string>
                         {
                             { "request", body },
                             { "response", response },
                         }));
-                    LogDebug("Request Timeout from Tebex API. Please try again later.");
+                    LogDebug($"Request to Tebex did not complete. HTTP Code: {code}");
+                    LogDebug(response);
                 }
                 else // response is a general failure error message in a json formatted response from the api
                 {

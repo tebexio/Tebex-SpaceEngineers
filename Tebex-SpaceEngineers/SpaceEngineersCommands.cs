@@ -57,9 +57,21 @@ namespace TebexSpaceEngineersPlugin
             return false;
         }
 
-        public static bool GiveSpaceCredits(MyPlayer player, uint amount)
+        public static bool GiveSpaceCredits(BaseTebexAdapter adapter, MyPlayer player, uint amount)
         {
-            return MyBankingSystem.ChangeBalance(player.Identity.IdentityId, amount);
+            long balanceBefore = MyBankingSystem.GetBalance(player.Identity.IdentityId);
+            bool success = MyBankingSystem.ChangeBalance(player.Identity.IdentityId, amount);
+            long balanceAfter = MyBankingSystem.GetBalance(player.Identity.IdentityId);
+            if (success)
+            {
+                adapter.LogDebug($"Gave {amount} credits to {player.DisplayName}. Balance before: {balanceBefore}. Balance after: {balanceAfter}");    
+            }
+            else
+            {
+                adapter.LogDebug($"Failed to give {amount} credits to {player.DisplayName}");
+            }
+
+            return success;
         }
     }
 }

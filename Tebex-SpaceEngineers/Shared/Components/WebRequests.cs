@@ -51,7 +51,7 @@ namespace Tebex.Shared.Components
                     webRequest.Headers[header.Key] = header.Value;
                 }
 
-                if (!string.IsNullOrEmpty(request.Body) && (request.Method == TebexApi.HttpVerb.POST || request.Method == TebexApi.HttpVerb.PUT))
+                if (!string.IsNullOrEmpty(request.Body) && (request.Method == TebexApi.HttpVerb.POST || request.Method == TebexApi.HttpVerb.PUT || request.Method == TebexApi.HttpVerb.DELETE))
                 {
                     webRequest.ContentType = "application/json";
                     using (Stream stream = await Task.Factory.FromAsync(webRequest.BeginGetRequestStream, webRequest.EndGetRequestStream, null))
@@ -81,10 +81,21 @@ namespace Tebex.Shared.Components
                     request.Callback?.Invoke((int)((HttpWebResponse)response).StatusCode, responseBody);
                 }
             }
-            catch (Exception ex)
+            catch (WebException ex)
             {
-                _adapter.LogDebug("Error sending request: " + ex.Message);
-                request.Callback?.Invoke(0, $"Request failed: {ex.Message}");
+                _adapter.LogDebug($"Error sending request {request.Method} {request.Url}: " + ex.Message);
+                _adapter.LogDebug("Errored request body:");
+                _adapter.LogDebug(request.Body);
+                _adapter.LogDebug("Response string: ");
+                using (Stream responseStream = ex.Response.GetResponseStream())
+                using (StreamReader reader = new StreamReader(responseStream))
+                {
+                    _adapter.LogDebug(reader.ReadToEnd());
+                }
+
+                _adapter.LogDebug("Stack trace:");
+                _adapter.LogDebug(ex.StackTrace);
+                request.Callback?.Invoke(400, $"Request failed: {ex.Message}");
             }
         }
     }
