@@ -111,7 +111,7 @@ namespace TebexSpaceEngineersPlugin {
             _timers = new TickTimers(_adapter);
             
             TebexApi.Instance.InitAdapter(_adapter);
-            SpaceEngineersCommands.InitItemDefinitions();
+            SpaceEngineersCommands.InitItemDefinitions(_adapter);
             
             // Check if auto reporting is disabled and show a warning if so.
             if (!BaseTebexAdapter.PluginConfig.AutoReportingEnabled)
