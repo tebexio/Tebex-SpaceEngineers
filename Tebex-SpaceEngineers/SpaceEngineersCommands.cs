@@ -21,7 +21,7 @@ namespace TebexSpaceEngineersPlugin
     {
         // Cache for available item definitions, for lookup by name
         private static Dictionary<String, MyPhysicalItemDefinition> _itemDefinitions;
-        public static void InitItemDefinitions()
+        public static void InitItemDefinitions(BaseTebexAdapter adapter)
         {
             // Get all public item definitions and store in a map for easy lookup in GiveItem()
             var publicItems = MyDefinitionManager.Static.GetAllDefinitions()
@@ -31,6 +31,17 @@ namespace TebexSpaceEngineersPlugin
             foreach (var definition in publicItems)
             {
                 _itemDefinitions.Add(definition.DisplayNameText, definition);
+            }
+            
+            // If debug mode is enabled we can dump item info to the console
+            PrintItemDefinitions(adapter);
+        }
+
+        public static void PrintItemDefinitions(BaseTebexAdapter adapter)
+        {
+            foreach (var definition in _itemDefinitions)
+            {
+                adapter.LogDebug($"item: {definition.Key}/id:{definition.Value.Id}/subtype:{definition.Value.Id.SubtypeName}/typeid:{definition.Value.Id.TypeId}");    
             }
         }
         
@@ -49,7 +60,7 @@ namespace TebexSpaceEngineersPlugin
             }
             
             var itemDef = _itemDefinitions[itemName];
-            var itemOb = MyObjectBuilderSerializer.CreateNewObject(itemDef.Id);
+            var itemOb = MyObjectBuilderSerializer.CreateNewObject(itemDef.Id.TypeId, itemDef.Id.SubtypeName);
             if (itemOb == null)
             {
                 adapter.LogError($"Failed to create object builder");
