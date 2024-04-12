@@ -28,20 +28,13 @@ namespace TebexSpaceEngineersPlugin
                 .Where(e => e is MyPhysicalItemDefinition && e.Public)
                 .Cast<MyPhysicalItemDefinition>()
                 .OrderBy(e => e.DisplayNameText);
+            _itemDefinitions = new Dictionary<string, MyPhysicalItemDefinition>();
             foreach (var definition in publicItems)
             {
-                _itemDefinitions.Add(definition.DisplayNameText, definition);
-            }
-            
-            // If debug mode is enabled we can dump item info to the console
-            PrintItemDefinitions(adapter);
-        }
-
-        public static void PrintItemDefinitions(BaseTebexAdapter adapter)
-        {
-            foreach (var definition in _itemDefinitions)
-            {
-                adapter.LogDebug($"item: {definition.Key}/id:{definition.Value.Id}/subtype:{definition.Value.Id.SubtypeName}/typeid:{definition.Value.Id.TypeId}");    
+                // definition.Id.ToString() = "MyObjectBuilder_Ore/Gold"
+                var defIdentifier = definition.ToString().Replace("MyObjectBuilder_", "");
+                adapter.LogDebug($"caching item definition '{defIdentifier}'");
+                _itemDefinitions.Add(defIdentifier, definition);
             }
         }
         

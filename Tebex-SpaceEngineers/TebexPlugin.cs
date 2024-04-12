@@ -109,10 +109,13 @@ namespace TebexSpaceEngineersPlugin {
             // Init plugin components so they have access to our adapter
             _webrequest = new WebRequests(_adapter);
             _timers = new TickTimers(_adapter);
+            _timers.Once(10, () =>
+            {
+                SpaceEngineersCommands.InitItemDefinitions(_adapter);
+            }); // run scheduled to allow errors to pass through without crashing the server
             
             TebexApi.Instance.InitAdapter(_adapter);
-            SpaceEngineersCommands.InitItemDefinitions(_adapter);
-            
+
             // Check if auto reporting is disabled and show a warning if so.
             if (!BaseTebexAdapter.PluginConfig.AutoReportingEnabled)
             {
