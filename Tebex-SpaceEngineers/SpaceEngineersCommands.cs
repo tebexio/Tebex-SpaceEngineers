@@ -80,7 +80,13 @@ namespace TebexSpaceEngineersPlugin
             
             IMyInventoryItem invItem = new MyPhysicalInventoryItem(qtyFixedPoint, item);
             inventory.ResetVolume();
-            inventory.Add(invItem, qtyFixedPoint);
+            bool inventoryAddSuccess = inventory.Add(invItem, qtyFixedPoint);
+            if (!inventoryAddSuccess)
+            {
+                adapter.LogError($"Failed to add {qtyFixedPoint}x of item {itemName} to player {player.DisplayName}");
+                return false;
+            }
+            
             inventory.FixInventoryVolume((float)maxVolume);
             return true;
         }
