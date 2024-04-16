@@ -31,8 +31,7 @@ namespace TebexSpaceEngineersPlugin
             _itemDefinitions = new Dictionary<string, MyPhysicalItemDefinition>();
             foreach (var definition in publicItems)
             {
-                // definition.Id.ToString() = "MyObjectBuilder_Ore/Gold"
-                var defIdentifier = definition.ToString().Replace("MyObjectBuilder_", "");
+                var defIdentifier = definition.ToString().Replace("MyObjectBuilder_", ""); // definition.Id.ToString() = "MyObjectBuilder_Ore/Gold"
                 adapter.LogDebug($"caching item definition '{defIdentifier}'");
                 _itemDefinitions.Add(defIdentifier, definition);
             }
@@ -90,16 +89,7 @@ namespace TebexSpaceEngineersPlugin
         {
             long balanceBefore = MyBankingSystem.GetBalance(player.Identity.IdentityId);
             bool success = MyBankingSystem.ChangeBalance(player.Identity.IdentityId, amount);
-            long balanceAfter = MyBankingSystem.GetBalance(player.Identity.IdentityId);
-            if (success)
-            {
-                adapter.LogDebug($"Gave {amount} credits to {player.DisplayName}. Balance before: {balanceBefore}. Balance after: {balanceAfter}");    
-            }
-            else
-            {
-                adapter.LogDebug($"Failed to give {amount} credits to {player.DisplayName}");
-            }
-
+           
             return success;
         }
     }

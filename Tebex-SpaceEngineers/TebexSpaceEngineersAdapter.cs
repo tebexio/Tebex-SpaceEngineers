@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Sandbox.Engine.Multiplayer;
+using Sandbox.Game.GameSystems.BankingAndCurrency;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Sandbox.ModAPI;
@@ -173,7 +174,19 @@ namespace Tebex.Adapters
                     }
 
                     var amount = uint.Parse(args[1]);
-                    return SpaceEngineersCommands.GiveSpaceCredits(this,player, amount);
+                    long balanceBefore = MyBankingSystem.GetBalance(player.Identity.IdentityId);
+                    bool giveCreditsSucceeded = SpaceEngineersCommands.GiveSpaceCredits(this,player, amount);
+                    long balanceAfter = MyBankingSystem.GetBalance(player.Identity.IdentityId);
+                    if (giveCreditsSucceeded)
+                    {
+                        LogInfo($"{amount} credits given to {player.DisplayName} for payment {command.Payment}");
+                        LogDebug($"{player.DisplayName} balance before: {balanceBefore}. Balance after: {balanceAfter}");
+                    }
+                    else
+                    {
+                        LogError($"failed to give {amount} credits to {player.DisplayName} for payment {command.Payment}");
+                    }
+                    return giveCreditsSucceeded;
                 default:
                     LogWarning($"unknown server command: {fullCommand}");
                     return false;
