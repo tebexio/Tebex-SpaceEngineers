@@ -1,11 +1,7 @@
-﻿using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using VRage.Utils;
 
 namespace TebexSpaceEngineersPlugin {
     public static class PatchController {
@@ -46,6 +42,7 @@ namespace TebexSpaceEngineersPlugin {
         }
 
         public static void Patch(MethodInfo newMethod, Type typeOfPatch) {
+            /*
             var harmony = new Harmony("PatchController");
             TargetMethod TargetMethodData = (TargetMethod)newMethod.GetCustomAttribute(typeof(TargetMethod));
             VRage.Utils.MyLog.Default.WriteLineAndConsole($"Patching {TargetMethodData.Method} with {newMethod.Name} (Prefix)");
@@ -56,8 +53,7 @@ namespace TebexSpaceEngineersPlugin {
             }
             else {
                 harmony.Patch(TargetMethodData.Type.GetMethod(TargetMethodData.Method, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public), null, new HarmonyMethod(newMethod));
-
-            }
+            }*/
         }
 
         public static IEnumerable<Type> GetPatchingClassesAndInitalize(Assembly assembly) {

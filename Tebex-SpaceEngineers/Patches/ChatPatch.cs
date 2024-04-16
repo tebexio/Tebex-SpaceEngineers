@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Sandbox.Game;
-using Sandbox.Engine;
+﻿
 using Sandbox.Engine.Multiplayer;
-using HarmonyLib;
 using Sandbox.Game.Gui;
 using Tebex.API.Shared;
-using VRage.Utils;
-using static TebexSpaceEngineersPlugin.PatchController;
 
 namespace TebexSpaceEngineersPlugin.Patches {
     //Marks the class for further inspection by the controller

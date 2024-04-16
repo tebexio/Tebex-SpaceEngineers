@@ -6,6 +6,6 @@ workingDir=$(pwd)
 msbuild Tebex-SpaceEngineers.sln -p:Configuration=Release
 cd ./Tebex-SpaceEngineers/bin/x64/Release
 mv Tebex-SpaceEngineers.dll Tebex-SpaceEngineers-${VERSION}.dll
-zip "Tebex-SpaceEngineers-${VERSION}.zip" 0Harmony.dll Tebex-SpaceEngineers-${VERSION}.dll
+zip "Tebex-SpaceEngineers-${VERSION}.zip" Tebex-SpaceEngineers-${VERSION}.dll
 mv "Tebex-SpaceEngineers-${VERSION}.zip" "${workingDir}"
 cd $workingDir
