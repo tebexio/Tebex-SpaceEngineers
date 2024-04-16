@@ -80,24 +80,24 @@ namespace Tebex.Adapters
 
         public override void LogWarning(string message)
         {
-            VRage.Utils.MyLog.Default.WriteLineAndConsole("[WARNING] " + message);
+            VRage.Utils.MyLog.Default.WriteLineAndConsole("[Tebex] [WARNING] " + message);
         }
 
         public override void LogError(string message)
         {
-            VRage.Utils.MyLog.Default.WriteLineAndConsole("[ERROR] " + message); 
+            VRage.Utils.MyLog.Default.WriteLineAndConsole("[Tebex] [ERROR] " + message); 
         }
 
         public override void LogInfo(string message)
         {
-            VRage.Utils.MyLog.Default.WriteLineAndConsole("[INFO] " + message);
+            VRage.Utils.MyLog.Default.WriteLineAndConsole("[Tebex] [INFO] " + message);
         }
 
         public override void LogDebug(string message)
         {
             if (PluginConfig.DebugMode)
             {
-                VRage.Utils.MyLog.Default.WriteLineAndConsole("[DEBUG] " + message);
+                VRage.Utils.MyLog.Default.WriteLineAndConsole("[Tebex] [DEBUG] " + message);
             }
         }
 

@@ -127,8 +127,10 @@ namespace TebexSpaceEngineersPlugin {
             if (BaseTebexAdapter.PluginConfig.SecretKey != "Your Tebex Secret Key")
             {
                 _adapter.LogInfo("Secret key is set. Loading store info...");
-                // No-op, just to place info in the cache for any future triage events
-                _adapter.FetchStoreInfo((info => { }));
+                _adapter.FetchStoreInfo(info =>
+                {
+                    _adapter.LogInfo($"Connected to store {info.AccountInfo.Domain} as game server {info.ServerInfo.Name}");
+                });
                 return;
             }
 
