@@ -14,15 +14,15 @@ namespace TebexSpaceEngineersPlugin
     public class PluginConfiguration : IPluginConfiguration
     {
         [Display(Name = "Debug Mode", Description = "Set to true for in-depth logging information")]
-        [Category("General")]
+        [Category("Tebex Config")]
         public bool DebugMode = false;
 
         [Display(Name = "Secret Key", Description = "Your Game Server key from https://creator.tebex.io/game-servers")]
-        [Category("General")]
+        [Category("Tebex Config")]
         public string SecretKey = "Your Tebex Secret Key";
 
         [Display(Name = "Auto Report Errors", Description = "Any errors will be automatically reported to Tebex")]
-        [Category("General")]
+        [Category("Tebex Config")]
         public bool AutoReportingEnabled = true;
         public void Save(string userDataPath)
         {
