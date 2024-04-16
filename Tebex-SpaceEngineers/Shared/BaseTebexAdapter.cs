@@ -52,7 +52,11 @@ namespace Tebex.Adapters
             }
 
             LogDebug($"  Found {ExecutedCommands.Count} commands to flush.");
-
+            if (ExecutedCommands.Count > 0)
+            {
+                LogInfo($"Marking {ExecutedCommands.Count} commands as completed");
+            }
+            
             List<int> ids = new List<int>();
             foreach (var command in ExecutedCommands)
             {

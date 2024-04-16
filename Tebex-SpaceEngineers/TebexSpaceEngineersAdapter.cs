@@ -164,7 +164,16 @@ namespace Tebex.Adapters
 
                     var itemId = args[1];
                     var quantity = uint.Parse(args[2]);
-                    return SpaceEngineersCommands.GiveItem(this, player, itemId, quantity);
+                    bool giveItemSucceeded = SpaceEngineersCommands.GiveItem(this, player, itemId, quantity);
+                    if (giveItemSucceeded)
+                    {
+                        LogInfo($"Item {itemId} given to {player.DisplayName} for payment {command.Payment}");
+                    }
+                    else
+                    {
+                        LogError($"failed to give item {itemId} to {player.DisplayName} for payment {command.Payment}");
+                    }
+                    return giveItemSucceeded;
                 case "give_credits":
                 case "give-credits":
                     if (args.Length < 2)
@@ -189,6 +198,9 @@ namespace Tebex.Adapters
                     return giveCreditsSucceeded;
                 default:
                     LogWarning($"unknown server command: {fullCommand}");
+                    LogWarning("Vanilla Space Engineers only supports the following commands:");
+                    LogWarning("- give_item {id} {itemId} {quantity}");
+                    LogWarning("- give_credits {id} {amount}");
                     return false;
             }
         }
